@@ -35,6 +35,7 @@ from multiprocessing import Pool
 
 @click.option('--NHmax', default = 2, help='Maximum number of read alignments allowed as governed by the NH flag. Default = 2.')
 @click.option('--NMmax', default = 15, help='Maximum number of paired mismatches allowed represented by the NM/nM tags. Default = 15.')
+@click.option('--min-reads', '-mr', default = 1, help='Minimum number of supporting reads to call a consensus UMI/rread. Default = 1.')
 
 @click.option('--umi-barcode', '-ub', default = "UB",  help='Read tag (generally two letters) to specify the UMI tag when removing duplicates for genotyping.')
 
@@ -55,7 +56,7 @@ from multiprocessing import Pool
 
 def main(mode, input, output, name, mito_genome, ncores,
 	cluster, jobs, barcode_tag, barcodes, min_barcode_reads,
-	nhmax, nmmax, umi_barcode, max_javamem, 
+	nhmax, nmmax, min_reads, umi_barcode, max_javamem, 
 	base_qual, alignment_quality,
 	nsamples, keep_samples, ignore_samples,
 	keep_temp_files, skip_r, snake_stdout):
@@ -292,7 +293,7 @@ def main(mode, input, output, name, mito_genome, ncores,
 			'fasta_file' : sqs(fastaf), 'mito_chr' : sqs(mito_chr), 'mito_length' : sqs(mito_length), 
 			'base_qual' : sqs(base_qual), 'umi_barcode' : sqs(umi_barcode),
 			'alignment_quality' : sqs(alignment_quality), 
-			'NHmax' : sqs(nhmax), 'NMmax' : sqs(nmmax), 'max_javamem' : sqs(max_javamem)}
+			'NHmax' : sqs(nhmax), 'NMmax' : sqs(nmmax), 'min_reads' : sqs(min_reads),'max_javamem' : sqs(max_javamem)}
 		
 		if(mode == "call"):
 			

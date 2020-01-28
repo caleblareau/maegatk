@@ -8,7 +8,7 @@ dependencies = ['click', 'pysam', 'pytest', 'snakemake', 'biopython', 'optparse-
 setup(
     name='maegtk',
     version='0.0.1',
-    url='https://github.com/aryeelab/mgatk',
+    url='https://github.com/caleblareau/maegtk',
     license='MIT',
     author='Caleb Lareau',
     author_email='clareau@broadinstitute.org',

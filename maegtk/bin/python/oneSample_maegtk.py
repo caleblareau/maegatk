@@ -31,6 +31,7 @@ base_qual = str(config["base_qual"])
 alignment_quality = config["alignment_quality"]
 NHmax = config["NHmax"]
 NMmax = config["NMmax"]
+min_reads = str(config["min_reads"])
 
 max_javamem  = config["max_javamem"]
 
@@ -66,7 +67,7 @@ fgcallone =  fgbio + " GroupReadsByUmi -s Identity -e 0 -i " + temp_bam0 + " -o 
 os.system(fgcallone)
 
 # 3) Call consensus reads
-fgcalltwo = fgbio + " CallMolecularConsensusReads -t "+umi_barcode+" -i "+temp_bam1+" -o " + temp_bam2 +" -M 1"
+fgcalltwo = fgbio + " CallMolecularConsensusReads -t "+umi_barcode+" -i "+temp_bam1+" -o " + temp_bam2 +" -M " + min_reads
 os.system(fgcalltwo)
 
 # 4) Convert consensus bam to fastq
