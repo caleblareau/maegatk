@@ -1,23 +1,4 @@
 
-# 0.4.0
-- Fully separated by strand for counts / qualities
-- UMI-based duplicate read removal available
-- Default to remove PCR duplicates
-
-# 0.3.9
-- Handle common reference genome issue for human genomes (hg19 / rCRS) automatically
-
-# 0.3.4
-- Full support for `bcall` mode
-
-# 0.3.0
-- Per-base / allele quality scores
-
-# 0.2.5
-- Creates .rds for easy i/o into R package
-- Efficient sparse matrices for final text-based output
-- Added additional run modes. 5 total as of now (call, one, gather, support, check)
-
 # 0.1.0
 - Alpha version uploaded to PyPi
 

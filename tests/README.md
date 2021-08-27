@@ -1,7 +1,7 @@
 ## Sample genotyping
 
 ```
-maegtk bcall -i data/test_maester.bam -o test_maester -z
+maegatk bcall -i data/test_maester.bam -o test_maester -z
 ```
 
 compare to mgatk

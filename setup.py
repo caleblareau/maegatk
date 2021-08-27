@@ -1,18 +1,18 @@
 """
-maegtk: a maester genotyping toolkit
+maegatk: a maester genotyping tool kit
 """
 from setuptools import find_packages, setup
 
 dependencies = ['click', 'pysam', 'pytest', 'snakemake', 'biopython', 'optparse-pretty', 'regex', 'ruamel.yaml']
 
 setup(
-    name='maegtk',
-    version='0.0.2',
-    url='https://github.com/caleblareau/maegtk',
+    name='maegatk',
+    version='0.1.0',
+    url='https://github.com/caleblareau/maegatk',
     license='MIT',
     author='Caleb Lareau',
-    author_email='clareau@broadinstitute.org',
-    description='Processing and quality control of mitochondrial genome variants from Maester data.',
+    author_email='caleb.lareau@gmail.com',
+    description='Processing and quality control of mitochondrial genome variants from MAESTER data.',
     long_description=__doc__,
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
@@ -21,7 +21,7 @@ setup(
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'maegtk = maegtk.cli:main',
+            'maegatk = maegatk.cli:main',
         ],
     },
     classifiers=[

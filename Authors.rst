@@ -4,14 +4,12 @@ Credits
 
 Development Lead
 ----------------
-* Caleb Lareau <caleblareau@g.harvard.edu>
-
-Supervisors
----------------
-* Martin Aryee
-
+* Caleb Lareau <caleb.lareau@gmail.com>
 
 Contributors
-------------
-* Leif Ludwig
-* Jacob Ulirsch
+---------------
+* Peter van Galen
+* Tyler Miller
+
+
+
