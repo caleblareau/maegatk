@@ -7,7 +7,7 @@ dependencies = ['click', 'pysam', 'pytest', 'snakemake', 'biopython', 'optparse-
 
 setup(
     name='maegatk',
-    version='0.1.0',
+    version='0.1.2',
     url='https://github.com/caleblareau/maegatk',
     license='MIT',
     author='Caleb Lareau',
@@ -22,6 +22,7 @@ setup(
     entry_points={
         'console_scripts': [
             'maegatk = maegatk.cli:main',
+            'maegatk-indel = maegatk.cliindel:main',
         ],
     },
     classifiers=[

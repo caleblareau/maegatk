@@ -1,11 +1,11 @@
 # Prune tests, data, and other stuff
-prune mgatk.egg-info/
+prune maegatk.egg-info/
 prune tests/
 prune *.DS_Store
 
 
 # Scripts
-recursive-include mgatk *
+recursive-include maegatk *
 
 # Misc
 include Authors.rst

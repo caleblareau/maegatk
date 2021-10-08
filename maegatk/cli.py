@@ -36,6 +36,7 @@ from multiprocessing import Pool
 @click.option('--NHmax', default = 2, help='Maximum number of read alignments allowed as governed by the NH flag. Default = 2.')
 @click.option('--NMmax', default = 15, help='Maximum number of paired mismatches allowed represented by the NM/nM tags. Default = 15.')
 @click.option('--min-reads', '-mr', default = 1, help='Minimum number of supporting reads to call a consensus UMI/rread. Default = 1.')
+@click.option('--keep-qc-bams', '-qc', is_flag=True, help='Add this flag to keep the quality-controlled bams after processing.')
 
 @click.option('--umi-barcode', '-ub', default = "UB",  help='Read tag (generally two letters) to specify the UMI tag when removing duplicates for genotyping.')
 
@@ -56,7 +57,7 @@ from multiprocessing import Pool
 
 def main(mode, input, output, name, mito_genome, ncores,
 	cluster, jobs, barcode_tag, barcodes, min_barcode_reads,
-	nhmax, nmmax, min_reads, umi_barcode, max_javamem, 
+	nhmax, nmmax, min_reads, keep_qc_bams, umi_barcode, max_javamem, 
 	base_qual, alignment_quality,
 	nsamples, keep_samples, ignore_samples,
 	keep_temp_files, skip_r, snake_stdout):
@@ -86,9 +87,6 @@ def main(mode, input, output, name, mito_genome, ncores,
 		click.echo(gettime() + "List of built-in genomes supported in maegatk:")
 		click.echo(gettime() + str(supported_genomes))
 		sys.exit(gettime() + 'Specify one of these genomes or provide your own .fasta file with the --mito-genome flag')
-		
-	if(mode == "check"):
-		click.echo(gettime() + "checking dependencies...")
 	
 	# Remember that I started off as bcall as this will become overwritten
 	wasbcall = False
@@ -164,20 +162,18 @@ def main(mode, input, output, name, mito_genome, ncores,
 		click.echo(gettime() + "Finished determining/splitting barcodes for genotyping.")
 		
 		# Update everything to appear like we've just set `call` on the set of bams
-		mode = "call"
 		input = bcbd 
 		wasbcall = True
 
 	
-	if (mode == "call" or mode == "gather"):
-		if not skip_r:	
-			check_software_exists("R")
-			check_R_packages(["dplyr"])
-	
+	if not skip_r:	
+		check_software_exists("R")
+		check_R_packages(["dplyr"])
+
 	# -------------------------------
 	# Determine samples for analysis
 	# -------------------------------
-	if(mode == "check" or mode == "call"):
+	if(mode == "bcall"):
 	
 		bams = []
 		bams = os.popen('ls ' + input + '/*.bam').read().strip().split("\n")
@@ -239,11 +235,8 @@ def main(mode, input, output, name, mito_genome, ncores,
 	
 		nsamplesNote = "maegatk will process " + str(len(samples)) + " samples"
 		
-	if(mode == "check"):
-		# Exit gracefully
-		sys.exit(gettime() + "maegatk check passed! "+nsamplesNote+" if same parameters are run in `call` mode")	
-			
-	if(mode == "call" or mode == "one"):
+	
+	if(mode == "bcall"):
 	
 		# Make all of the output folders if necessary
 		of = output; tf = of + "/temp"; qc = of + "/qc"; logs = of + "/logs"
@@ -257,18 +250,12 @@ def main(mode, input, output, name, mito_genome, ncores,
 		#-------------------
 		# Handle .fasta file
 		#-------------------
-		if((mode == "call" and wasbcall == False) or mode == "one"):
-			fastaf, mito_genmito_chrome, mito_length = handle_fasta_inference(mito_genome, supported_genomes, script_dir, mode, of)
-			print(gettime() + "Found designated mitochondrial chromosome: %s" % mito_chr)
-			
-		if(mode == "call"):
+		if(mode == "bcall"):
 			# Logging		
 			logf = open(output + "/logs" + "/base.maegatk.log", 'a')
 			click.echo(gettime() + "Starting analysis with maegatk", logf)
 			click.echo(gettime() + nsamplesNote, logf)
-
-		if (True):
-				make_folder(of + "/logs/rmdupslogs")
+			make_folder(of + "/logs/rmdupslogs")
 	
 		# Create internal README files 
 		if not os.path.exists(of + "/.internal/README"):
@@ -295,7 +282,7 @@ def main(mode, input, output, name, mito_genome, ncores,
 			'alignment_quality' : sqs(alignment_quality), 
 			'NHmax' : sqs(nhmax), 'NMmax' : sqs(nmmax), 'min_reads' : sqs(min_reads),'max_javamem' : sqs(max_javamem)}
 		
-		if(mode == "call"):
+		if(mode == "bcall"):
 			
 			# Potentially submit jobs to cluster
 			snakeclust = ""
@@ -324,36 +311,15 @@ def main(mode, input, output, name, mito_genome, ncores,
 			snakecmd_scatter = 'snakemake'+snakeclust+' --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Scatter --cores '+ncores+' --config cfp="'  + y_s + '" --stats '+snake_stats + snake_log_out
 			os.system(snakecmd_scatter)
 			click.echo(gettime() + "maegatk successfully processed the supplied .bam files", logf)
-		
-		if(mode == "one"):
-		
-			# Don't run this through snakemake as we may be trying to handle multiple at the same time
-			sample = samples[0]
-			inputbam = samplebams[0]
-			outputbam = output + "/temp/ready_bam/"+sample+".qc.bam"
-			
-			y_s = of + "/.internal/samples/"+sample+".yaml"
-			with open(y_s, 'w') as yaml_file:
-				yaml.dump(dict1, yaml_file, default_flow_style=False, Dumper=yaml.RoundTripDumper)
-			
-			
-			# Call the python script
-			oneSample_py = script_dir + "/bin/python/oneSample.py"
-			pycall = " ".join(['python', oneSample_py, y_s, inputbam, outputbam, sample])
-			os.system(pycall)
 	
 	#-------
 	# Gather
 	#-------
-	if(mode == "gather" or mode == "call"):
+	if(mode == "bcall"):
 		
-		if(mode == "call"):
+		if(mode == "bcall"):
 			maegatk_directory = output
 			
-		elif(mode == "gather"): # in gather, the input argument specifies where things are
-			logf = open(input + "/logs" + "/base.maegatk.log", 'a')
-			click.echo(gettime() + "Gathering samples that were pre-called with `one`.", logf)
-			maegatk_directory = input
 			
 		dict2 = {'maegatk_directory' : sqs(maegatk_directory), 'name' : sqs(name), 'script_dir' : sqs(script_dir)}
 		y_g = maegatk_directory + "/.internal/parseltongue/snake.gather.yaml"
@@ -380,14 +346,16 @@ def main(mode, input, output, name, mito_genome, ncores,
 	#--------
 	# Cleanup
 	#--------
-	if(mode == "call" or mode == "gather"):
+	if(mode == "bcall" ):
+	
+		if keep_qc_bams:
+			click.echo(gettime() + "Final bams retained since --keep-qc-bams was specified.", logf)
+			dest = shutil.move(of + "/temp/ready_bam", of + "/qc_bam")	
 		if keep_temp_files:
 			click.echo(gettime() + "Temporary files not deleted since --keep-temp-files was specified.", logf)
 		else:
-			if(mode == "call"):
+			if(mode == "bcall"):
 				byefolder = of
-			if(mode == "gather"):
-				byefolder = input
 			
 			shutil.rmtree(byefolder + "/fasta")
 			shutil.rmtree(byefolder + "/.internal")
