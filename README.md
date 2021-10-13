@@ -11,6 +11,7 @@ Mitochondrial Alteration Enrichment and Genome Analysis Toolkit
 - java in the environment
 - bwa in the environment
 - bedtools in the environment
+- freebayes in the environment for indel calling
 
 ### Installation
 
