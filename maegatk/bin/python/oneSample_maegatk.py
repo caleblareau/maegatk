@@ -50,6 +50,8 @@ rmlog = outputbam.replace(".qc.bam", ".rmdups.log").replace("/temp/ready_bam/", 
 filtlog = outputbam.replace(".qc.bam", ".filter.log").replace("/temp/ready_bam/", "/logs/filterlogs/")
 temp_bam0 = outputbam.replace(".qc.bam", ".temp0.bam").replace("/temp/ready_bam/", "/temp/temp_bam/")
 temp_bam1 = outputbam.replace(".qc.bam", ".temp1.bam").replace("/temp/ready_bam/", "/temp/temp_bam/")
+temp_sam15 = outputbam.replace(".qc.bam", ".temp1.5.sam").replace("/temp/ready_bam/", "/temp/temp_bam/")
+temp_bam15 = outputbam.replace(".qc.bam", ".temp1.5.bam").replace("/temp/ready_bam/", "/temp/temp_bam/")
 temp_bam2 = outputbam.replace(".qc.bam", ".temp2.bam").replace("/temp/ready_bam/", "/temp/temp_bam/")
 temp_fastq = outputbam.replace(".qc.bam", ".temp0.fastq").replace("/temp/ready_bam/", "/temp/temp_bam/")
 
@@ -64,11 +66,18 @@ os.system(pycall)
 
 # 2) Sort the filtered bam file
 fgcallone =  fgbio + " GroupReadsByUmi -s Identity -e 0 -i " + temp_bam0 + " -o " + temp_bam1 + " -t "+ umi_barcode
+os.system('echo "'+fgcallone+'"')
 os.system(fgcallone)
 
+# 2.5) Modify the UB tag
+samtoolscall = 'samtools view -H ' + temp_bam1 + '> ' + temp_sam15 + '; samtools view ' + temp_bam1 + '| awk \'OFS="\t" {$13=$13""$4; print $0}\' >> ' + temp_sam15 + '; samtools view -b ' + temp_sam15 + '> ' + temp_bam15
+os.system('echo "'+samtoolscall+'"')
+os.system(samtoolscall)
+
 # 3) Call consensus reads
-fgcalltwo = fgbio + " CallMolecularConsensusReads -t "+umi_barcode+" -i "+temp_bam1+" -o " + temp_bam2 +" -M " + min_reads
+fgcalltwo = fgbio + " CallMolecularConsensusReads -t "+umi_barcode+" -i "+temp_bam15+" -o " + temp_bam2 +" -M " + min_reads
 os.system(fgcalltwo)
+print(fgcalltwo)
 
 # 4) Convert consensus bam to fastq
 bedtools_call = "bedtools bamtofastq -i "+ temp_bam2 +" -fq " + temp_fastq
@@ -91,4 +100,3 @@ with open(prefixSM + ".coverage.txt", 'r') as coverage:
 		depth += int(s[2].strip())
 with open(outputdepth, 'w') as d:
 	d.write(sample + "\t" + str(round(float(depth)/float(mito_length),2)) + "\n")
-
