@@ -80,8 +80,9 @@ os.system(fgcalltwo)
 print(fgcalltwo)
 
 # 4) Convert consensus bam to fastq
-bedtools_call = "bedtools bamtofastq -i "+ temp_bam2 +" -fq " + temp_fastq
-os.system(bedtools_call)
+# bedtools_call = "bedtools bamtofastq -i "+ temp_bam2 +" -fq " + temp_fastq # Bedtools stopped working for some reason, replacing it with samtools fastq
+samtoolscall2 = 'samtools fastq -T cM ' + temp_bam2 + " | sed 's/\tcM:i:/_/g' > " + temp_fastq
+os.system(samtoolscall2)
 
 # 5) Remap + sort bam files
 bwa_call = "bwa mem " + fasta_file + " " + temp_fastq + " | samtools sort -o "+ outputbam +" -"
