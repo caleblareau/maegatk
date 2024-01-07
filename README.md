@@ -129,7 +129,8 @@ Options:
 ### fgbio
 We use [fgbio](https://github.com/fulcrumgenomics/fgbio) for PCR duplicate removal. Thus, `java` is by default a required dependency. While not recommended, you can avoid this dependency by throwing the `--keep-duplicates` flag, which will circumvent the `java` call (but retain likely PCR duplicates, which we've found decreases the interpretability of variants by introducing additional false positives). If you retain duplicates, then maegatk isn't doing anything for you, and you should consider running [mgatk](https://github.com/caleblareau/mgatk).
 
-We recommend specifying a custom tmp directory for **fgbio**, as the default directory can easily get overflown on your system. This can be done by modifying the **fgbio** command in [maegatk/bin/python/oneSample_maegatk.py](https://github.com/caleblareau/maegatk/blob/master/maegatk/bin/python/oneSample_maegatk.py) (located in `~/.local/lib/python3.9/site-packages/maegatk/bin/python/`) by adding the `-Djava.io.tmpdir` option:
+> [!IMPORTANT]  
+> We recommend specifying a custom tmp directory for **fgbio**, as the default directory can easily get overflown on your system. This can be done by modifying the **fgbio** command in [maegatk/bin/python/oneSample_maegatk.py](https://github.com/caleblareau/maegatk/blob/master/maegatk/bin/python/oneSample_maegatk.py) (located in `~/.local/lib/python3.9/site-packages/maegatk/bin/python/`) by adding the `-Djava.io.tmpdir` option:
 <pre> fgbio = java + " -Djava.io.tmpdir=/some/directory/"  + " -Xmx" + max_javamem + " -jar " + script_dir + "/bin/fgbio.jar" </pre>
 
 ## Test run
