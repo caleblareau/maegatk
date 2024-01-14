@@ -53,6 +53,7 @@ from multiprocessing import Pool
 @click.option('--keep-temp-files', '-z', is_flag=True, help='Keep all intermediate files.')
 
 @click.option('--skip-R', '-sr', is_flag=True, help='Generate plain-text only output. Otherwise, this generates a .rds obejct that can be immediately read into R for downstream analysis.')
+@click.option('--skip-barcodesplit', '-sb', is_flag=True, help='Skip the time consuming barcode-splitting step if it finished successfully before')
 @click.option('--snake-stdout', '-so', is_flag=True, help='Write snakemake log to sdout rather than a file.')
 
 def main(mode, input, output, name, mito_genome, ncores,
@@ -60,7 +61,7 @@ def main(mode, input, output, name, mito_genome, ncores,
 	nhmax, nmmax, min_reads, keep_qc_bams, umi_barcode, max_javamem, 
 	base_qual, alignment_quality,
 	nsamples, keep_samples, ignore_samples,
-	keep_temp_files, skip_r, snake_stdout):
+	keep_temp_files, skip_r, skip_barcodesplit, snake_stdout):
 	
 	"""
 	maegatk: a Maester genome toolkit. \n
@@ -150,16 +151,17 @@ def main(mode, input, output, name, mito_genome, ncores,
 			barcodes = passing_barcode_file
 
 		# Potentially split the valid barcodes into smaller files if we need to
-		barcode_files = split_barcodes_file(barcodes, nsamples, output)
-		split_barcoded_bam_py = script_dir + "/bin/python/split_barcoded_bam.py"
-		
-		# Loop over the split sample files
-		for i in range(len(barcode_files)):
-			one_barcode_file = barcode_files[i]
-			pycall = " ".join(['python', split_barcoded_bam_py, input, bcbd, barcode_tag, one_barcode_file, mito_chr])
-			os.system(pycall)
+		if not skip_barcodesplit:
+			barcode_files = split_barcodes_file(barcodes, nsamples, output)
+			split_barcoded_bam_py = script_dir + "/bin/python/split_barcoded_bam.py"
 			
-		click.echo(gettime() + "Finished determining/splitting barcodes for genotyping.")
+			# Loop over the split sample files
+			for i in range(len(barcode_files)):
+				one_barcode_file = barcode_files[i]
+				pycall = " ".join(['python', split_barcoded_bam_py, input, bcbd, barcode_tag, one_barcode_file, mito_chr])
+				os.system(pycall)
+				
+			click.echo(gettime() + "Finished determining/splitting barcodes for genotyping.")
 		
 		# Update everything to appear like we've just set `call` on the set of bams
 		input = bcbd 
@@ -336,10 +338,11 @@ def main(mode, input, output, name, mito_genome, ncores,
 			
 		snakecmd_gather = 'snakemake --snakefile ' + script_dir + '/bin/snake/Snakefile.maegatk.Gather --cores '+ncores+' --config cfp="' + y_g + '" --stats '+snake_stats + snake_log_out
 		os.system(snakecmd_gather)
-		
-		# Make .rds file from the output
-		Rcall = "Rscript " + script_dir + "/bin/R/toRDS.R " + maegatk_directory + "/final " + name
-		os.system(Rcall)
+
+		if not skip_r:
+			# Make .rds file from the output
+			Rcall = "Rscript " + script_dir + "/bin/R/toRDS.R " + maegatk_directory + "/final " + name
+			os.system(Rcall)
 		
 		click.echo(gettime() + "Successfully created final output files", logf)
 	
