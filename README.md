@@ -116,6 +116,9 @@ Options:
                                   immediately read into R for downstream
                                   analysis.
 
+  -sb, --skip-barcodesplit        Skip the time consuming barcode-splitting
+                                  step if it finished successfully before
+  
   -so, --snake-stdout             Write snakemake log to sdout rather than a
                                   file.
 
