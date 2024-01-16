@@ -12,7 +12,7 @@ import pysam
 from pkg_resources import get_distribution
 from subprocess import call, check_call
 from .maegatkHelp import *
-from ruamel import yaml
+from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import SingleQuotedScalarString as sqs
 from multiprocessing import Pool
 
@@ -297,8 +297,10 @@ def main(mode, input, output, name, mito_genome, ncores,
 			
 			y_s = of + "/.internal/parseltongue/snake.scatter.yaml"
 			with open(y_s, 'w') as yaml_file:
-				yaml.dump(dict1, yaml_file, default_flow_style=False, Dumper=yaml.RoundTripDumper)
-			
+				yaml=YAML()
+				yaml.default_flow_style = False
+				yaml.dump(dict1, yaml_file)
+						
 			cp_call = "cp " + y_s +  " " + logs + "/" + name + ".parameters.txt"
 			os.system(cp_call)
 			
@@ -326,7 +328,10 @@ def main(mode, input, output, name, mito_genome, ncores,
 		dict2 = {'maegatk_directory' : sqs(maegatk_directory), 'name' : sqs(name), 'script_dir' : sqs(script_dir)}
 		y_g = maegatk_directory + "/.internal/parseltongue/snake.gather.yaml"
 		with open(y_g, 'w') as yaml_file:
-			yaml.dump(dict2, yaml_file, default_flow_style=False, Dumper=yaml.RoundTripDumper)
+			yaml=YAML()
+			yaml.default_flow_style = False
+			yaml.dump(dict2, yaml_file)
+			
 		
 		# Snakemake gather
 		snake_stats = logs + "/" + name + ".snakemake_gather.stats"

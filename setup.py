@@ -7,7 +7,7 @@ dependencies = ['click', 'pysam', 'pytest', 'snakemake', 'biopython', 'optparse-
 
 setup(
     name='maegatk',
-    version='0.1.2',
+    version='0.2.1',
     url='https://github.com/caleblareau/maegatk',
     license='MIT',
     author='Caleb Lareau',

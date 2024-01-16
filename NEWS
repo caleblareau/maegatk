@@ -1,4 +1,10 @@
 
+# 0.2.1
+- Fix error from yaml deprecation
+
+# 0.2.0
+- Documentation refactoring thanks to @noranekonobokkusu
+
 # 0.1.0
 - Alpha version uploaded to PyPi
 
